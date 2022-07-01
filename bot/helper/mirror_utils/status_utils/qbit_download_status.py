@@ -36,10 +36,7 @@ class QbDownloadStatus:
         Gets total size of the mirror file/folder
         :return: total size of mirror
         """
-        if self.__select:
-            return self.__info.size
-        else:
-            return self.__info.total_size
+        return self.__info.size if self.__select else self.__info.total_size
 
     def processed_bytes(self):
         return self.__info.downloaded
@@ -65,7 +62,7 @@ class QbDownloadStatus:
         if download in ["queuedDL", "queuedUP"]:
             return MirrorStatus.STATUS_WAITING
         elif download in ["metaDL", "checkingResumeData"]:
-            return MirrorStatus.STATUS_DOWNLOADING + " (Metadata)"
+            return f"{MirrorStatus.STATUS_DOWNLOADING} (Metadata)"
         elif download in ["pausedDL", "pausedUP"]:
             return MirrorStatus.STATUS_PAUSE
         elif download in ["checkingUP", "checkingDL"]:

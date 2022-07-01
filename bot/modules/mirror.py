@@ -74,16 +74,16 @@ class MirrorListener:
                 with download_dict_lock:
                     download_dict[self.uid] = ZipStatus(name, m_path, size)
                 pswd = self.pswd
-                path = m_path + ".zip"
+                path = f"{m_path}.zip"
                 LOGGER.info(f'Zip: orig_path: {m_path}, zip_path: {path}')
                 if pswd is not None:
                     if self.isLeech and int(size) > TG_SPLIT_SIZE:
-                        path = m_path + ".zip"
+                        path = f"{m_path}.zip"
                         srun(["7z", f"-v{TG_SPLIT_SIZE}b", "a", "-mx=0", f"-p{pswd}", path, m_path])
                     else:
                         srun(["7z", "a", "-mx=0", f"-p{pswd}", path, m_path])
                 elif self.isLeech and int(size) > TG_SPLIT_SIZE:
-                    path = m_path + ".zip"
+                    path = f"{m_path}.zip"
                     srun(["7z", f"-v{TG_SPLIT_SIZE}b", "a", "-mx=0", path, m_path])
                 else:
                     srun(["7z", "a", "-mx=0", path, m_path])
@@ -322,18 +322,13 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
     if len(pswdMsg) > 1:
         pswd = pswdMsg[1]
 
-    tag = update.message.from_user.mention_html(f"{update.message.from_user.first_name}") + f" (<code>{str(update.message.from_user.id)}</code>)"
+    tag = f'{update.message.from_user.mention_html(f"{update.message.from_user.first_name}")} (<code>{str(update.message.from_user.id)}</code>)'
+
 
     reply_to = update.message.reply_to_message
     if reply_to is not None:
-        file = None
         media_array = [reply_to.document, reply_to.video, reply_to.audio]
-        for i in media_array:
-            if i is not None:
-                file = i
-                break
-
-
+        file = next((i for i in media_array if i is not None), None)
         if (
             not is_url(link)
             and not is_magnet(link)
@@ -366,8 +361,11 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
             pass
 
     if not is_url(link) and not is_magnet(link) and not ospath.exists(link):
-        help_msg = "<b>Send link along with command line:</b>"
-        help_msg += "\n<code>/command</code> {link} |newname pswd: mypassword [𝚣𝚒𝚙/𝚞𝚗𝚣𝚒𝚙]"
+        help_msg = (
+            "<b>Send link along with command line:</b>"
+            + "\n<code>/command</code> {link} |newname pswd: mypassword [𝚣𝚒𝚙/𝚞𝚗𝚣𝚒𝚙]"
+        )
+
         help_msg += "\n\n<b>By replying to link or file:</b>"
         help_msg += "\n<code>/command</code> |newname pswd: mypassword [𝚣𝚒𝚙/𝚞𝚗𝚣𝚒𝚙]"
         help_msg += "\n\n<b>Direct link authorization:</b>"
@@ -391,26 +389,22 @@ def _mirror(bot, update, isZip=False, extract=False, isQbit=False, isLeech=False
                 if str(e).startswith('ERROR:'):
                     return sendMessage(str(e), bot, update)
     elif isQbit and not is_magnet(link) and not ospath.exists(link):
-        if link.endswith('.torrent'):
-            content_type = None
-        else:
-            content_type = get_content_type(link)
+        content_type = None if link.endswith('.torrent') else get_content_type(link)
         if content_type is None or match(r'application/x-bittorrent|application/octet-stream', content_type):
             try:
                 resp = requests.get(link, timeout=10)
-                if resp.status_code == 200:
-                    file_name = str(time()).replace(".", "") + ".torrent"
-                    open(file_name, "wb").write(resp.content)
-                    link = f"{file_name}"
-                else:
+                if resp.status_code != 200:
                     return sendMessage(f"ERROR: link got HTTP response: {resp.status_code}", bot, update)
+                file_name = str(time()).replace(".", "") + ".torrent"
+                open(file_name, "wb").write(resp.content)
+                link = f"{file_name}"
             except Exception as e:
                 error = str(e).replace('<', ' ').replace('>', ' ')
                 if error.startswith('No connection adapters were found for'):
                     link = error.split("'")[1]
                 else:
                     LOGGER.error(str(e))
-                    return sendMessage(tag + " " + error, bot, update)
+                    return sendMessage(f"{tag} {error}", bot, update)
         else:
             msg = "Qb commands for torrents only. if you are trying to dowload torrent then report."
             return sendMessage(msg, bot, update)

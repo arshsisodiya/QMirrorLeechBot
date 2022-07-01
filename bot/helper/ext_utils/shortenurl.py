@@ -11,8 +11,7 @@ from urllib3 import disable_warnings
 from bot import LOGGER, SHORTENER, SHORTENER_API
 
 def short_url(longurl, spes=None):
-    if spes: tempvar = spes
-    else: tempvar = SHORTENER
+    tempvar = spes or SHORTENER
     if not tempvar: return longurl
     elif ("v.gd" in tempvar) or ("is.gd" in tempvar):
         try:
@@ -62,7 +61,7 @@ def short_url(longurl, spes=None):
         except Exception as e:
             LOGGER.error(e)
             link = longurl
-    
+
     # requires shortener api
 
     if not SHORTENER_API: return longurl

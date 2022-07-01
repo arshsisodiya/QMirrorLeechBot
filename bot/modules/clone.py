@@ -19,10 +19,12 @@ def cloneNode(update, context):
     reply_to = update.message.reply_to_message
     if len(args) > 1:
         link = args[1]
-        tag = update.message.from_user.mention_html(f"{update.message.from_user.first_name}") + f" (<code>{str(update.message.from_user.id)}</code>)"
+        tag = f'{update.message.from_user.mention_html(f"{update.message.from_user.first_name}")} (<code>{str(update.message.from_user.id)}</code>)'
+
     elif reply_to:
         link = reply_to.text
-        tag = reply_to.from_user.mention_html(f"{reply_to.from_user.first_name}") + f" (<code>{str(update.message.from_user.id)}</code>)"
+        tag = f'{reply_to.from_user.mention_html(f"{reply_to.from_user.first_name}")} (<code>{str(update.message.from_user.id)}</code>)'
+
     else:
         link = ''
     gdtot_link = is_gdtot_link(link)
