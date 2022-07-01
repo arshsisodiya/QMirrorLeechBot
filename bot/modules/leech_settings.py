@@ -106,17 +106,17 @@ def setThumb(update, context):
             mkdir(path)
         photo_msg = app.get_messages(update.message.chat.id, reply_to_message_ids=update.message.message_id)
         photo_dir = app.download_media(photo_msg, file_name=path)
-        des_dir = ospath.join(path, str(user_id) + ".jpg")
+        des_dir = ospath.join(path, f"{str(user_id)}.jpg")
         Image.open(photo_dir).convert("RGB").save(des_dir, "JPEG")
         osremove(photo_dir)
         if DB_URI is not None:
             DbManger().user_save_thumb(user_id, des_dir)
         msg = f"Custom thumbnail saved for: <a href='tg://user?id={user_id}'>{update.message.from_user.full_name}</a> (<code>{str(user_id)}</code>)"
         todel = sendMessage(msg, context.bot, update)
-        Thread(target=auto_delete_message, args=(context.bot, update.message, todel)).start()
     else:
         todel = sendMessage("Reply to a photo to save custom thumbnail.", context.bot, update)
-        Thread(target=auto_delete_message, args=(context.bot, update.message, todel)).start()
+
+    Thread(target=auto_delete_message, args=(context.bot, update.message, todel)).start()
 
 leech_set_handler = CommandHandler(BotCommands.LeechSetCommand, leechSet, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)
 set_thumbnail_handler = CommandHandler(BotCommands.SetThumbCommand, setThumb, filters=CustomFilters.authorized_chat | CustomFilters.authorized_user, run_async=True)

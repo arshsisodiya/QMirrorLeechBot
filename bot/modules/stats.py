@@ -33,7 +33,7 @@ def getHerokuDetails(h_api_key, h_app_name):
             "Authorization": f"Bearer {h_api_key}",
             "Accept": "application/vnd.heroku+json; version=3.account-quotas",
         }
-        path = "/accounts/" + user_id + "/actions/get-quota"
+        path = f"/accounts/{user_id}/actions/get-quota"
         session = requests.Session()
         result = (session.get(heroku_api + path, headers=headers)).json()
         abc = ""
@@ -53,14 +53,12 @@ def getHerokuDetails(h_api_key, h_app_name):
                 except Exception as t:
                     LOGGER.error("error when adding main dyno")
                     LOGGER.error(t)
-                    pass
             else:
                 try:
                     OtherAppsUsage += int(apps.get("quota_used"))
                 except Exception as t:
                     LOGGER.error("error when adding other dyno")
                     LOGGER.error(t)
-                    pass
         LOGGER.info(f"This App: {str(app.name)}")
         abc += f"App Usage: {get_readable_time(AppQuotaUsed)}"
         abc += f" | Other Apps: {get_readable_time(OtherAppsUsage)}"
@@ -96,8 +94,8 @@ def stats(update, context):
             f'<b>Cores:</b> {t_core} | <b>Physical:</b> {p_core} | <b>Logical:</b> {t_core - p_core} | <b>Uptime:</b> {currentTime}\n\n' \
             f'<b>DISK:</b> {disk}% | <b>RAM:</b> {mem_p}% | <b>CPU:</b> {cpuUsage}% | <b>SWAP:</b> {swap_p}%\n' \
             f'<b>Total Upload:</b> {sent} | <b>Total Download:</b> {recv}\n\n'
-    heroku = getHerokuDetails(HEROKU_API_KEY, HEROKU_APP_NAME)
-    if heroku: stats += heroku
+    if heroku := getHerokuDetails(HEROKU_API_KEY, HEROKU_APP_NAME):
+        stats += heroku
     sendMessage(stats, context.bot, update)
 
 stats_handler = CommandHandler(BotCommands.StatsCommand, stats,

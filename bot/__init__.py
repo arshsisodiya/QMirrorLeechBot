@@ -143,7 +143,7 @@ try:
     parent_id = getConfig('GDRIVE_FOLDER_ID')
     DOWNLOAD_DIR = getConfig('DOWNLOAD_DIR')
     if not DOWNLOAD_DIR.endswith("/"):
-        DOWNLOAD_DIR = DOWNLOAD_DIR + '/'
+        DOWNLOAD_DIR = f'{DOWNLOAD_DIR}/'
     DOWNLOAD_STATUS_UPDATE_INTERVAL = int(getConfig('DOWNLOAD_STATUS_UPDATE_INTERVAL'))
     OWNER_ID = int(getConfig('OWNER_ID'))
     AUTO_DELETE_MESSAGE_DURATION = int(getConfig('AUTO_DELETE_MESSAGE_DURATION'))
@@ -181,7 +181,6 @@ def aria2c_init():
             aria2.remove([download], force=True, files=True)
     except Exception as e:
         logging.error(f"Aria2c initializing error: {e}")
-        pass
 
 if not ospath.isfile(".restartmsg"):
     sleep(1)
@@ -365,7 +364,7 @@ try:
     SHORTENER = getConfig('SHORTENER')
     LOGGER.info(f"using SHORTENER: {SHORTENER}")
 except Exception as e:
-    LOGGER.info(f"no using SHORTENER")
+    LOGGER.info("no using SHORTENER")
     SHORTENER = None
 try:
     SHORTENER_API = getConfig('SHORTENER_API')
@@ -437,21 +436,20 @@ try:
     ACCOUNTS_ZIP_URL = getConfig('ACCOUNTS_ZIP_URL')
     if len(ACCOUNTS_ZIP_URL) == 0:
         raise KeyError
-    else:
-        try:
-            res = rget(ACCOUNTS_ZIP_URL)
-            if res.status_code == 200:
-                with open('accounts.zip', 'wb+') as f:
-                    f.write(res.content)
-                    f.close()
-            else:
-                logging.error(f"Failed to download accounts.zip, link got HTTP response: {res.status_code}")
-        except Exception as e:
-            logging.error(f"ACCOUNTS_ZIP_URL: {e}")
-            raise KeyError
-        srun(["unzip", "-q", "-o", "accounts.zip"])
-        srun(["chmod", "-R", "777", "accounts"])
-        osremove("accounts.zip")
+    try:
+        res = rget(ACCOUNTS_ZIP_URL)
+        if res.status_code == 200:
+            with open('accounts.zip', 'wb+') as f:
+                f.write(res.content)
+                f.close()
+        else:
+            logging.error(f"Failed to download accounts.zip, link got HTTP response: {res.status_code}")
+    except Exception as e:
+        logging.error(f"ACCOUNTS_ZIP_URL: {e}")
+        raise KeyError
+    srun(["unzip", "-q", "-o", "accounts.zip"])
+    srun(["chmod", "-R", "777", "accounts"])
+    osremove("accounts.zip")
 except KeyError:
     pass
 try:

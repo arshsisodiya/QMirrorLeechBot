@@ -65,8 +65,10 @@ class TgUploader:
         if self.__sent_msg == '': self.__sent_msg = app.get_messages(self.__listener.message.chat.id, self.__listener.uid)
         else: self.__sent_msg = app.get_messages(self.__sent_msg.chat.id, self.__sent_msg.message_id)
         keption = DOWNLOAD_DIR
-        if not keption.endswith('/'): keption = keption + '/'
-        if not keption.startswith('/'): keption = '/' + keption
+        if not keption.endswith('/'):
+            keption = f'{keption}/'
+        if not keption.startswith('/'):
+            keption = f'/{keption}'
         keption = up_path.replace(keption, '', 1)
         zoy = keption.split('/')[0]
         keption = keption.replace(zoy, '', 1)
@@ -98,7 +100,7 @@ class TgUploader:
                     else:
                         width, height = get_video_resolution(up_path)
                     if not file_.upper().endswith(("MKV", "MP4")):
-                        file_ = ospath.splitext(file_)[0] + '.mp4'
+                        file_ = f'{ospath.splitext(file_)[0]}.mp4'
                         new_path = ospath.join(dirpath, file_)
                         osrename(up_path, new_path)
                         up_path = new_path

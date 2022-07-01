@@ -137,7 +137,7 @@ def _qb_listener(listener, client, ext_hash, select, path):
                     if qbname.endswith('.!qB'):
                         qbname = ospath.splitext(qbname)[0]
                     if listener.isZip:
-                        qbname = qbname + ".zip"
+                        qbname = f"{qbname}.zip"
                     elif listener.extract:
                         try:
                            qbname = get_base_name(qbname)
